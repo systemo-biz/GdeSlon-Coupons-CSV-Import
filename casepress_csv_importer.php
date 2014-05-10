@@ -121,8 +121,8 @@ function CSVtoPost($real_path) {
  * Механизм переадресации по $url если указан ключ ?url=go для поста
  */
 	
-add_action( 'template_redirect', 'redirect_to_url', 10 );
-function redirect_to_url() {
+add_action( 'template_redirect', 'cp_gdeslon_redirect_to_url', 10 );
+function cp_gdeslon_redirect_to_url() {
     global $post;
     
 	if (is_singular('coupon') && isset( $_GET['url'] ) && $_GET['url'] == 'go' ) {
@@ -134,34 +134,10 @@ function redirect_to_url() {
 
 
 
-    
-/*****************************************************************
-* Механика поля с id категории у таксономии магазинов, для синхронизации с CSV
-*/
 
 
-add_action( 'category_edit_form_fields', 'store_taxonomy_edit_meta_field', 10, 2 );
-function store_taxonomy_edit_meta_field($term) {
- 
-	// put the term ID into a variable
-	$t_id = $term->term_id;
- 
-	//Получить опцию с массивом, в которой хранится связь терминов и категорий CSV
-	$keys = get_option( "cp_csv_keys_and_term_ids" ); ?>
-	<tr class="form-field">
-        <th scope="row" valign="top">
-            <label for="csv_key">Ключ соответствующий данной категории в CSV файле</label>
-        </th>
-        <td>
-            <input type="text" name="csv_key" id="csv_key" value="<?php echo $keys[$t_id]; ?>">
-            <p class="description">Укажите ключ, который соответствует данной категории в CSV файле</p>
-        </td>
-	</tr>
-<?php
-}
-
-add_action( 'edited_category', 'csv_key_save');
-function csv_key_save( $term_id ) {
+add_action( 'edited_category', 'cp_gdeslon_csv_key_save');
+function cp_gdeslon_csv_key_save( $term_id ) {
     if ( isset( $_POST['csv_key'] ) ) {
          
         //Загружаем текущую связку ключей
@@ -183,20 +159,20 @@ function csv_key_save( $term_id ) {
 * Механика страницы консоли для управления загрузкой
 */
 
-add_action('admin_menu', 'cp_csv_menu_setup'); //menu setup
+add_action('admin_menu', 'cp_gdeslon_csv_menu_setup'); //menu setup
 //Страница настроек
-function cp_csv_menu_setup(){
+function cp_gdeslon_csv_menu_setup(){
 	add_management_page(
 	 'ГдеСлон - Импорт купонов',
 	 'ГдеСлон - Импорт купонов',
 	 'manage_options',
 	 'msp_cpcsv',
-	 'msp_cpcsv_admin_page_screen'
+	 'gdeslon_msp_cpcsv_admin_page_screen'
 	 );
 }
 
 //Запуск AJAX-хука из консоли
-function msp_cpcsv_admin_page_screen() {
+function gdeslon_msp_cpcsv_admin_page_screen() {
 ?>
 <div id="cp_csv_imp">
 	<h1>Загрузка CSV</h1>
@@ -221,8 +197,8 @@ function msp_cpcsv_admin_page_screen() {
 
 
 //Запуск функции через AJAX-хук
-add_action('wp_ajax_load_cp_csv_coupons', 'load_cp_csv_coupons');
-function load_cp_csv_coupons(){
+add_action('wp_ajax_load_cp_csv_coupons', 'gdeslon_load_cp_csv_coupons');
+function gdeslon_load_cp_csv_coupons(){
 	$setting_name = 'cp_gdeslon_url_csv';
 	$urlcsv = esc_attr( get_option( $setting_name ) );
 
